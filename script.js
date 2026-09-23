@@ -145,3 +145,104 @@ document.addEventListener("DOMContentLoaded", () => {
   initMobileNav();
   initReveal();
 });
+// Formspree + reCAPTCHA
+const FORMSPREE_ENDPOINT = "https://formspree.io/f/mdekzagz";
+
+function setupForm(formId, fieldMap) {
+  const form = document.getElementById(formId);
+  if (!form) return;
+
+  // Remove the old demo submit behavior
+  form.onsubmit = null;
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    const button = form.querySelector('button[type="submit"]');
+    const confirm = form.querySelector(".confirm");
+
+    if (button) {
+      button.disabled = true;
+      button.textContent = "Sending...";
+    }
+
+    try {
+      const token = await grecaptcha.execute(
+        "6Ldeu8otAAAAAMp-dWH-2ldZg4gnURsqWsA44BWV",
+        { action: "submit" }
+      );
+
+      const formData = new FormData();
+
+      fieldMap.forEach(([name, id]) => {
+        const field = document.getElementById(id);
+        if (field) {
+          formData.append(name, field.value);
+        }
+      });
+
+      formData.append("g-recaptcha-response", token);
+
+      const response = await fetch(FORMSPREE_ENDPOINT, {
+        method: "POST",
+        body: formData,
+        headers: {
+          Accept: "application/json"
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error("Form submission failed");
+      }
+
+      form.reset();
+
+      if (confirm) {
+        confirm.textContent =
+          "Thank you! Your inquiry has been received. We will contact you soon.";
+        confirm.style.display = "block";
+      }
+
+    } catch (error) {
+      if (confirm) {
+        confirm.textContent =
+          "Sorry, something went wrong. Please contact us by WhatsApp or phone.";
+        confirm.style.display = "block";
+      }
+    }
+
+    if (button) {
+      button.disabled = false;
+      button.textContent =
+        formId === "buyer-form"
+          ? "Submit Inquiry"
+          : "Request Property Evaluation";
+    }
+  });
+}
+
+
+// Buyer form
+setupForm("buyer-form", [
+  ["name", "b-name"],
+  ["phone", "b-phone"],
+  ["email", "b-email"],
+  ["property_type", "b-type"],
+  ["purpose", "b-purpose"],
+  ["location", "b-location"],
+  ["budget", "b-budget"],
+  ["notes", "b-notes"]
+]);
+
+
+// Seller form
+setupForm("seller-form", [
+  ["name", "s-name"],
+  ["phone", "s-phone"],
+  ["email", "s-email"],
+  ["property_type", "s-type"],
+  ["property_size", "s-size"],
+  ["location", "s-location"],
+  ["expected_price", "s-price"],
+  ["description", "s-desc"]
+]);
