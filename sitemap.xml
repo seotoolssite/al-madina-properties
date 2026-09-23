@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Replace REPLACE-WITH-YOUR-DOMAIN once a custom domain is attached -->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://REPLACE-WITH-YOUR-DOMAIN/index.html</loc></url>
+  <url><loc>https://REPLACE-WITH-YOUR-DOMAIN/property.html</loc></url>
+</urlset>
